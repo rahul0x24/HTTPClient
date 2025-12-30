@@ -49,4 +49,4 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Run tests
-        run: xcodebuild test -scheme Support-Package -destination 'name=${{ matrix.device }}'
+        run: xcodebuild test -scheme HTTPClient-Package -destination 'name=${{ matrix.device }}'
