@@ -70,23 +70,24 @@ struct HTTPRemoteTests {
         )
 
         let actual = try remote.urlRequest(from: request)
-        let components = mutating(URLComponents()) {
-            $0.scheme = "https"
-            $0.host = "example.com"
-            $0.path = "/service/v1/destination"
-            $0.fragment = "subpage"
-            $0.port = 9000
-            $0.user = "user"
-            $0.password = "password"
-            $0.queryItems = [
-                URLQueryItem(name: "query", value: "value"),
-            ]
-        }
-        let expected = mutating(URLRequest(url: components.url!)) {
-            $0.httpMethod = "DELETE"
-            $0.addValue("1", forHTTPHeaderField: "client_id")
-            $0.addValue("1234", forHTTPHeaderField: "state")
-        }
+
+        var components = URLComponents()
+        components.scheme = "https"
+        components.host = "example.com"
+        components.path = "/service/v1/destination"
+        components.fragment = "subpage"
+        components.port = 9000
+        components.user = "user"
+        components.password = "password"
+        components.queryItems = [
+            URLQueryItem(name: "query", value: "value"),
+        ]
+
+        var expected = URLRequest(url: components.url!)
+        expected.httpMethod = "DELETE"
+        expected.addValue("1", forHTTPHeaderField: "client_id")
+        expected.addValue("1234", forHTTPHeaderField: "state")
+
         #expect(actual == expected)
     }
 
@@ -111,27 +112,28 @@ struct HTTPRemoteTests {
             )
 
             let actual = try remote.urlRequest(from: request)
-            let components = mutating(URLComponents()) {
-                $0.scheme = "https"
-                $0.host = "example.com"
-                $0.path = "/service/v1/destination"
-                $0.fragment = "subpage"
-                $0.port = 9000
-                $0.user = "user"
-                $0.password = "password"
-                $0.queryItems = [
-                    URLQueryItem(name: "remote-query", value: "remote-value"),
-                    URLQueryItem(name: "query", value: "value"),
-                ]
-            }
-            let expected = mutating(URLRequest(url: components.url!)) {
-                $0.httpMethod = "POST"
-                $0.addValue("1", forHTTPHeaderField: "client_id")
-                $0.addValue("1234", forHTTPHeaderField: "state")
-                $0.addValue("text/plain", forHTTPHeaderField: "content-type")
-                $0.addValue("4", forHTTPHeaderField: "content-length")
-                $0.httpBody = "body".data(using: .utf8)
-            }
+
+            var components = URLComponents()
+            components.scheme = "https"
+            components.host = "example.com"
+            components.path = "/service/v1/destination"
+            components.fragment = "subpage"
+            components.port = 9000
+            components.user = "user"
+            components.password = "password"
+            components.queryItems = [
+                URLQueryItem(name: "remote-query", value: "remote-value"),
+                URLQueryItem(name: "query", value: "value"),
+            ]
+
+            var expected = URLRequest(url: components.url!)
+            expected.httpMethod = "POST"
+            expected.addValue("1", forHTTPHeaderField: "client_id")
+            expected.addValue("1234", forHTTPHeaderField: "state")
+            expected.addValue("text/plain", forHTTPHeaderField: "content-type")
+            expected.addValue("4", forHTTPHeaderField: "content-length")
+            expected.httpBody = "body".data(using: .utf8)
+
             #expect(actual == expected)
         }
     }

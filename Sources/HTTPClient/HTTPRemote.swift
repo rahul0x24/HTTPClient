@@ -71,23 +71,33 @@ public struct HTTPRemote: Sendable {
 }
 
 extension HTTPRemote {
+    private enum Errors: Error {
+        case invalidURLComponents
+    }
+
     /// Creates a URL for the specified request and scheme.
-    /// - Throws: An error if `request` overries query parameters already defined in the receiver.
+    /// - Throws: An error if `request` overries query parameters already defined in the receiver, or if the URL components cannot be converted to a valid URL.
     public func url(for request: HTTPRequest, scheme: URLScheme) throws -> URL {
         let combinedQueryParameters = try queryParametersMergePolicy.merge(queryParameters, request.queryParameters)
-        return mutating(URLComponents()) {
-            $0.scheme = scheme.canonicalValue
-            $0.host = host
-            $0.path = "\(path)\(request.path)"
-            $0.fragment = request.fragment
-            $0.port = port
-            $0.user = user
-            $0.password = password
-            if !combinedQueryParameters.isEmpty {
-                $0.queryItems = combinedQueryParameters
-                    .map { URLQueryItem(name: $0.key, value: $0.value) }
-            }
-        }.url!
+
+        var components = URLComponents()
+        components.scheme = scheme.canonicalValue
+        components.host = host
+        components.path = "\(path)\(request.path)"
+        components.fragment = request.fragment
+        components.port = port
+        components.user = user
+        components.password = password
+        if !combinedQueryParameters.isEmpty {
+            components.queryItems = combinedQueryParameters
+                .map { URLQueryItem(name: $0.key, value: $0.value) }
+        }
+
+        guard let url = components.url else {
+            throw Errors.invalidURLComponents
+        }
+
+        return url
     }
 }
 
@@ -97,18 +107,19 @@ extension HTTPRemote: URLRequestProviding {
 
         let url = try url(for: request, scheme: .https)
 
-        return mutating(URLRequest(url: url)) { urlRequest in
-            for field in headers {
-                urlRequest.addValue(field.value, forHTTPHeaderField: field.name.canonicalName)
-            }
-
-            urlRequest.httpMethod = request.method.rawValue
-            if let body = request.body {
-                urlRequest.httpBody = body.content
-                urlRequest.addValue(body.type, forHTTPHeaderField: HTTPField.Name.contentType.canonicalName)
-                urlRequest.addValue("\(body.content.count)", forHTTPHeaderField: HTTPField.Name.contentLength.canonicalName)
-            }
+        var urlRequest = URLRequest(url: url)
+        for field in headers {
+            urlRequest.addValue(field.value, forHTTPHeaderField: field.name.canonicalName)
         }
+
+        urlRequest.httpMethod = request.method.rawValue
+        if let body = request.body {
+            urlRequest.httpBody = body.content
+            urlRequest.addValue(body.type, forHTTPHeaderField: HTTPField.Name.contentType.canonicalName)
+            urlRequest.addValue("\(body.content.count)", forHTTPHeaderField: HTTPField.Name.contentLength.canonicalName)
+        }
+
+        return urlRequest
     }
 }
 
@@ -125,11 +136,11 @@ extension HTTPRemote.HeadersMergePolicy {
             throw Errors.requestOverridesHeaders(overriddenFieldNames)
         }
 
-        return mutating(remoteHeaders) { remoteHeaders in
-            for field in requestHeaders {
-                remoteHeaders[field.name] = field.value
-            }
+        var mergedHeaders = remoteHeaders
+        for field in requestHeaders {
+            mergedHeaders[field.name] = field.value
         }
+        return mergedHeaders
     }
 
     /// A custom header policy that accepts a closure to determine the behaviour.
