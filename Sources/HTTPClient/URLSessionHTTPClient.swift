@@ -7,6 +7,7 @@ import FoundationNetworking
 public final class URLSessionHTTPClient: HTTPClient, Sendable {
     private let remote: URLRequestProviding
     private let session: URLSessionProtocol
+    private let interceptor: (any RequestInterceptor)?
 
     /// Creates a new HTTP client for the specified `remote`. The client will use `session` to perform network calls.
     ///
@@ -17,12 +18,17 @@ public final class URLSessionHTTPClient: HTTPClient, Sendable {
     /// - Parameters:
     ///   - remote: The specification for a remote service.
     ///   - session: The underlying session that the client should use.
-    public init(remote: URLRequestProviding, session: URLSessionProtocol = URLSession.shared) {
+    ///   - interceptor: Optional interceptor for observing requests and responses.
+    public init(remote: URLRequestProviding, session: URLSessionProtocol = URLSession.shared, interceptor: (any RequestInterceptor)? = nil) {
         self.remote = remote
         self.session = session
+        self.interceptor = interceptor
     }
 
     public func perform(_ request: HTTPRequest) async throws -> HTTPResponse {
+        // Notify interceptor that request is about to be performed
+        interceptor?.willPerform(request)
+
         do {
             let urlRequest: URLRequest
             do {
@@ -44,8 +50,13 @@ public final class URLSessionHTTPClient: HTTPClient, Sendable {
 
             let httpResponseObj = HTTPResponse(httpUrlResponse: httpResponse, bodyContent: data)
 
+            // Notify interceptor of success before returning
+            interceptor?.didSucceed(request, response: httpResponseObj)
+
             return httpResponseObj
         } catch let error as HTTPRequestPerformingError {
+            // Notify interceptor of failure
+            interceptor?.didFail(request, error: error)
             throw error
         }
     }
