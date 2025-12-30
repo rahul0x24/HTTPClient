@@ -15,31 +15,29 @@ extension HTTPRequest {
 }
 
 extension HTTPRequest.Body {
-    
     /// Creates a body with the specified data and `text/plain` content type.
     public static func plain(_ data: Data) -> HTTPRequest.Body {
         .init(
             content: data,
-            type: "text/plain"
+            type: "text/plain",
         )
     }
-    
+
     /// Creates a body with the specified text encoded as utf8 and `text/plain` content type.
     public static func plain(_ text: String) -> HTTPRequest.Body {
         .plain(Data(text.utf8))
     }
-    
+
     /// Creates a body with the specified data and `application/json` content type.
     public static func json(_ data: Data) -> HTTPRequest.Body {
         .init(
             content: data,
-            type: "application/json"
+            type: "application/json",
         )
     }
-    
+
     /// Creates a body by encoding `content` and using `application/json` content type.
     public static func json(_ content: some Encodable, encoder: JSONEncoder = JSONEncoder()) throws -> HTTPRequest.Body {
         try .json(encoder.encode(content))
     }
-    
 }

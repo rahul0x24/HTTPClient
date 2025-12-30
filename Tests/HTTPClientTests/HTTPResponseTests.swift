@@ -8,7 +8,6 @@ import HTTPTypes
 
 @Suite("HTTPResponse Tests")
 struct HTTPResponseTests {
-
     @Test func `Creating from HTTPURLResponse`() {
         let url = URL(string: "https://example.com")!
         let urlResponse = HTTPURLResponse(
@@ -18,7 +17,7 @@ struct HTTPResponseTests {
             headerFields: [
                 "content-type": "text/plain",
                 "Accept": "value",
-            ]
+            ],
         )!
         let body = "body".data(using: .utf8)!
         let actual = HTTPResponse(httpUrlResponse: urlResponse, bodyContent: body)
@@ -27,7 +26,7 @@ struct HTTPResponseTests {
             body: HTTPResponse.Body(content: body, type: "text/plain"),
             headerFields: [
                 HTTPField.Name.accept: "value",
-            ]
+            ],
         )
         #expect(actual == expected)
     }
@@ -41,7 +40,7 @@ struct HTTPResponseTests {
             headerFields: [
                 "Content-Type": "text/plain",
                 "accept": "value",
-            ]
+            ],
         )!
         let body = "body".data(using: .utf8)!
         let actual = HTTPResponse(httpUrlResponse: urlResponse, bodyContent: body)
@@ -50,7 +49,7 @@ struct HTTPResponseTests {
             body: HTTPResponse.Body(content: body, type: "text/plain"),
             headerFields: [
                 HTTPField.Name.accept: "value",
-            ]
+            ],
         )
         #expect(actual == expected)
     }
@@ -63,7 +62,7 @@ struct HTTPResponseTests {
             httpVersion: nil,
             headerFields: [
                 "Accept": "value",
-            ]
+            ],
         )!
         let body = "body".data(using: .utf8)!
         let actual = HTTPResponse(httpUrlResponse: urlResponse, bodyContent: body)
@@ -72,9 +71,8 @@ struct HTTPResponseTests {
             body: HTTPResponse.Body(content: body, type: nil),
             headerFields: [
                 HTTPField.Name.accept: "value",
-            ]
+            ],
         )
         #expect(actual == expected)
     }
-
 }

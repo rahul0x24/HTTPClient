@@ -8,7 +8,7 @@ extension Result {
             self = .failure(error)
         }
     }
-    
+
     func flatMap<NewSuccess>(_ transform: (Success) async -> Result<NewSuccess, Failure>) async -> Result<NewSuccess, Failure> {
         switch self {
         case .success(let value):

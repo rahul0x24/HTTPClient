@@ -6,21 +6,21 @@ public enum HTTPEndpointCallError: Error {
     ///
     /// Normally, this error signifies a programmer error.
     case badInput(underlyingError: Error)
-    
+
     /// The HTTP request was rejected by the network stack before actually making a call.
     ///
     /// Normally, this error signifies a programmer error.
     /// This error corresponds to ``HTTPRequestPerformingError/rejectedRequest(underlyingError:)``.
     case rejectedRequest(underlyingError: Error)
-    
+
     /// Encountered an error making the requests.
     ///
     /// This error corresponds to ``HTTPRequestPerformingError/networkFailure(underlyingError:)``.
     case networkFailure(underlyingError: URLError)
-    
+
     /// The services returned an HTTP error (Status code is not 2xx).
     case httpError(response: HTTPResponse)
-    
+
     /// Could not parse the HTTP response.
     case badResponse(underlyingError: Error)
 }

@@ -14,13 +14,12 @@ public enum HTTPMethod: String, Equatable, Sendable {
 }
 
 extension HTTPMethod {
-    
     /// An HTTP method’s body requirements.
     public enum BodyRequirment {
         case mustHave
         case mustNotHave
     }
-    
+
     /// The body requirement for this HTTP method.
     ///
     /// The body requirements are based on a strict interpretation of [RFC 9110](https://www.rfc-editor.org/rfc/rfc9110#name-method-definitions) .
@@ -38,5 +37,4 @@ extension HTTPMethod {
         case .patch: .mustHave // Implied by expectations on request content
         }
     }
-    
 }

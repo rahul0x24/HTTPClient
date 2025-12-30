@@ -8,14 +8,13 @@ import HTTPTypes
 /// As an example, to call `https://example.com/service/v1/content`, you may create an `HTTPRequest` with `path` of `/content`.
 /// The rest of the URL information can be provided further down in the networking stack.
 public struct HTTPRequest: Equatable, Sendable {
-    
     public let method: HTTPMethod
     public let path: String
     public let body: Body?
     public let fragment: String?
     public let queryParameters: [String: String]
     public let headerFields: HTTPFields
-    
+
     /// Creates an HTTP request.
     ///
     /// This initialiser enforces that the following invaritants hold:
@@ -36,12 +35,12 @@ public struct HTTPRequest: Equatable, Sendable {
         body: Body?,
         fragment: String? = nil,
         queryParameters: [String: String] = [:],
-        headerFields: HTTPFields = HTTPFields()
+        headerFields: HTTPFields = HTTPFields(),
     ) {
         guard path.isEmpty || path.starts(with: "/") else {
             preconditionFailure("`path` must start with `/` if it’s not empty.")
         }
-        
+
         let hasBody = (body != nil)
         switch (method.bodyRequirement, hasBody) {
         case (.mustNotHave, true):
@@ -51,13 +50,13 @@ public struct HTTPRequest: Equatable, Sendable {
         default:
             break
         }
-        
+
         for bodyHeaderFieldName in [HTTPField.Name.contentType, .contentLength] {
             guard !headerFields.contains(bodyHeaderFieldName) else {
                 preconditionFailure("\(bodyHeaderFieldName) header must not be set separately. Set the content type on the body.")
             }
         }
-        
+
         self.method = method
         self.path = path
         self.body = body
@@ -65,11 +64,9 @@ public struct HTTPRequest: Equatable, Sendable {
         self.queryParameters = queryParameters
         self.headerFields = headerFields
     }
-    
 }
 
 extension HTTPRequest {
-    
     /// Returns an HTTP GET request
     /// - Parameters:
     ///   - path: The request’s path. If the path is not empty, it must start with `/`.
@@ -81,7 +78,7 @@ extension HTTPRequest {
         _ path: String,
         fragment: String? = nil,
         queryParameters: [String: String] = [:],
-        headerFields: HTTPFields = HTTPFields()
+        headerFields: HTTPFields = HTTPFields(),
     ) -> HTTPRequest {
         HTTPRequest(
             method: .get,
@@ -89,10 +86,10 @@ extension HTTPRequest {
             body: nil,
             fragment: fragment,
             queryParameters: queryParameters,
-            headerFields: headerFields
+            headerFields: headerFields,
         )
     }
-        
+
     /// Returns an HTTP POST request
     /// - Parameters:
     ///   - path: The request’s path. If the path is not empty, it must start with `/`.
@@ -106,7 +103,7 @@ extension HTTPRequest {
         body: Body,
         fragment: String? = nil,
         queryParameters: [String: String] = [:],
-        headerFields: HTTPFields = HTTPFields()
+        headerFields: HTTPFields = HTTPFields(),
     ) -> HTTPRequest {
         HTTPRequest(
             method: .post,
@@ -114,10 +111,10 @@ extension HTTPRequest {
             body: body,
             fragment: fragment,
             queryParameters: queryParameters,
-            headerFields: headerFields
+            headerFields: headerFields,
         )
     }
-    
+
     /// Returns an HTTP PUT request
     /// - Parameters:
     ///   - path: The request’s path. If the path is not empty, it must start with `/`.
@@ -131,7 +128,7 @@ extension HTTPRequest {
         body: Body,
         fragment: String? = nil,
         queryParameters: [String: String] = [:],
-        headerFields: HTTPFields = HTTPFields()
+        headerFields: HTTPFields = HTTPFields(),
     ) -> HTTPRequest {
         HTTPRequest(
             method: .put,
@@ -139,10 +136,10 @@ extension HTTPRequest {
             body: body,
             fragment: fragment,
             queryParameters: queryParameters,
-            headerFields: headerFields
+            headerFields: headerFields,
         )
     }
- 
+
     /// Returns an HTTP PATCH request
     /// - Parameters:
     ///   - path: The request’s path. If the path is not empty, it must start with `/`.
@@ -156,7 +153,7 @@ extension HTTPRequest {
         body: Body,
         fragment: String? = nil,
         queryParameters: [String: String] = [:],
-        headerFields: HTTPFields = HTTPFields()
+        headerFields: HTTPFields = HTTPFields(),
     ) -> HTTPRequest {
         HTTPRequest(
             method: .patch,
@@ -164,10 +161,10 @@ extension HTTPRequest {
             body: body,
             fragment: fragment,
             queryParameters: queryParameters,
-            headerFields: headerFields
+            headerFields: headerFields,
         )
     }
-    
+
     /// Returns an HTTP DELETE request
     /// - Parameters:
     ///   - path: The request’s path. If the path is not empty, it must start with `/`.
@@ -179,7 +176,7 @@ extension HTTPRequest {
         _ path: String,
         fragment: String? = nil,
         queryParameters: [String: String] = [:],
-        headerFields: HTTPFields = HTTPFields()
+        headerFields: HTTPFields = HTTPFields(),
     ) -> HTTPRequest {
         HTTPRequest(
             method: .delete,
@@ -187,10 +184,10 @@ extension HTTPRequest {
             body: nil,
             fragment: fragment,
             queryParameters: queryParameters,
-            headerFields: headerFields
+            headerFields: headerFields,
         )
     }
-    
+
     /// Returns an HTTP OPTIONS request
     /// - Parameters:
     ///   - path: The request’s path. If the path is not empty, it must start with `/`.
@@ -202,7 +199,7 @@ extension HTTPRequest {
         _ path: String,
         fragment: String? = nil,
         queryParameters: [String: String] = [:],
-        headerFields: HTTPFields = HTTPFields()
+        headerFields: HTTPFields = HTTPFields(),
     ) -> HTTPRequest {
         HTTPRequest(
             method: .options,
@@ -210,10 +207,10 @@ extension HTTPRequest {
             body: nil,
             fragment: fragment,
             queryParameters: queryParameters,
-            headerFields: headerFields
+            headerFields: headerFields,
         )
     }
-    
+
     /// Returns an HTTP CONNECT request
     /// - Parameters:
     ///   - path: The request’s path. If the path is not empty, it must start with `/`.
@@ -225,7 +222,7 @@ extension HTTPRequest {
         _ path: String,
         fragment: String? = nil,
         queryParameters: [String: String] = [:],
-        headerFields: HTTPFields = HTTPFields()
+        headerFields: HTTPFields = HTTPFields(),
     ) -> HTTPRequest {
         HTTPRequest(
             method: .connect,
@@ -233,10 +230,10 @@ extension HTTPRequest {
             body: nil,
             fragment: fragment,
             queryParameters: queryParameters,
-            headerFields: headerFields
+            headerFields: headerFields,
         )
     }
-    
+
     /// Returns an HTTP HEAD request
     /// - Parameters:
     ///   - path: The request’s path. If the path is not empty, it must start with `/`.
@@ -248,7 +245,7 @@ extension HTTPRequest {
         _ path: String,
         fragment: String? = nil,
         queryParameters: [String: String] = [:],
-        headerFields: HTTPFields = HTTPFields()
+        headerFields: HTTPFields = HTTPFields(),
     ) -> HTTPRequest {
         HTTPRequest(
             method: .head,
@@ -256,10 +253,10 @@ extension HTTPRequest {
             body: nil,
             fragment: fragment,
             queryParameters: queryParameters,
-            headerFields: headerFields
+            headerFields: headerFields,
         )
     }
-    
+
     /// Returns an HTTP TRACE request
     /// - Parameters:
     ///   - path: The request’s path. If the path is not empty, it must start with `/`.
@@ -271,7 +268,7 @@ extension HTTPRequest {
         _ path: String,
         fragment: String? = nil,
         queryParameters: [String: String] = [:],
-        headerFields: HTTPFields = HTTPFields()
+        headerFields: HTTPFields = HTTPFields(),
     ) -> HTTPRequest {
         HTTPRequest(
             method: .trace,
@@ -279,8 +276,7 @@ extension HTTPRequest {
             body: nil,
             fragment: fragment,
             queryParameters: queryParameters,
-            headerFields: headerFields
+            headerFields: headerFields,
         )
     }
-
 }

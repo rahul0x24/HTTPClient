@@ -13,7 +13,7 @@ let package = Package(
     products: [
         .library(
             name: "HTTPClient",
-            targets: ["HTTPClient"]
+            targets: ["HTTPClient"],
         ),
     ],
     dependencies: [
@@ -25,11 +25,11 @@ let package = Package(
             dependencies: [
                 .product(name: "HTTPTypes", package: "swift-http-types"),
                 .product(name: "HTTPTypesFoundation", package: "swift-http-types"),
-            ]
+            ],
         ),
         .testTarget(
             name: "HTTPClientTests",
-            dependencies: ["HTTPClient"]
+            dependencies: ["HTTPClient"],
         ),
-    ]
+    ],
 )

@@ -66,7 +66,7 @@ struct HTTPServiceTests {
         }
     }
 
-    @Test func `Succeeding`() async throws {
+    @Test func Succeeding() async throws {
         let client = MockClient()
         let expected = UUID()
         let service = HTTPService(client: client) {
@@ -101,13 +101,13 @@ private class MockClient: HTTPClient {
         if let error = urlError {
             return .failure(.networkFailure(underlyingError: error))
         }
-        
+
         return .success(response)
     }
 }
 
-private extension HTTPService where Endpoints == MockEndpoints {
-    convenience init(client: HTTPClient, configure: (inout MockEndpoints) -> Void = { _ in }) {
+extension HTTPService where Endpoints == MockEndpoints {
+    fileprivate convenience init(client: HTTPClient, configure: (inout MockEndpoints) -> Void = { _ in }) {
         var endpoints = MockEndpoints()
         configure(&endpoints)
         self.init(client: client, endpoints: endpoints)

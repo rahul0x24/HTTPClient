@@ -9,7 +9,7 @@ public enum HTTPRequestPerformingError: Error {
     ///
     /// Normally, this error signifies a programmer error.
     case rejectedRequest(underlyingError: Error)
-    
+
     /// Encountered an error making the requests.
     ///
     /// You should expect this error in situations that ``URLSessionProtocol/data(for:delegate:)`` would throw.

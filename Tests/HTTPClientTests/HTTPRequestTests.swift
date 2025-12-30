@@ -51,8 +51,8 @@ struct HTTPRequestTests {
 
 // MARK: - Test Helpers
 
-private extension HTTPRequest.Body {
-    static func empty() -> HTTPRequest.Body {
+extension HTTPRequest.Body {
+    fileprivate static func empty() -> HTTPRequest.Body {
         .plain("")
     }
 }

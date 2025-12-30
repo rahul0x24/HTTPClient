@@ -7,7 +7,6 @@ import Foundation
 ///
 /// Normally, how the client performs a request is opaque to the caller. However, specific implementations in an app may define additional behaviour.
 public protocol HTTPClient {
-    
     /// Performs the `request` and returns the result.
     ///
     /// There are two different reasons the operation may fail:
@@ -25,7 +24,6 @@ public protocol HTTPClient {
 }
 
 extension HTTPClient {
-    
     func fetch<E: HTTPEndpoint>(_ endpoint: E, with input: E.Input) async -> Result<E.Output, HTTPEndpointCallError> {
         await Result { try endpoint.request(for: input) }
             .mapError(HTTPEndpointCallError.badInput)
@@ -43,5 +41,4 @@ extension HTTPClient {
                 }
             }
     }
-    
 }

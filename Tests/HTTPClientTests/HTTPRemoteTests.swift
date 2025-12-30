@@ -57,7 +57,7 @@ struct HTTPRemoteTests {
             port: 9000,
             user: "user",
             password: "password",
-            headerFields: [HTTPField.Name("client_id")!: "1"]
+            headerFields: [HTTPField.Name("client_id")!: "1"],
         )
 
         let request = HTTPRequest(
@@ -66,7 +66,7 @@ struct HTTPRemoteTests {
             body: nil,
             fragment: "subpage",
             queryParameters: ["query": "value"],
-            headerFields: [HTTPField.Name("state")!: "1234"]
+            headerFields: [HTTPField.Name("state")!: "1234"],
         )
 
         let actual = try remote.urlRequest(from: request)
@@ -98,7 +98,7 @@ struct HTTPRemoteTests {
             user: "user",
             password: "password",
             queryParameters: ["remote-query": "remote-value"],
-            headerFields: [HTTPField.Name("client_id")!: "1"]
+            headerFields: [HTTPField.Name("client_id")!: "1"],
         )
 
         let request = HTTPRequest.post(
@@ -106,7 +106,7 @@ struct HTTPRemoteTests {
             body: .plain("body"),
             fragment: "subpage",
             queryParameters: ["query": "value"],
-            headerFields: [HTTPField.Name("state")!: "1234"]
+            headerFields: [HTTPField.Name("state")!: "1234"],
         )
 
         let actual = try remote.urlRequest(from: request)
@@ -137,7 +137,7 @@ struct HTTPRemoteTests {
     @Test func `No query item marker is set if there is none`() throws {
         let remote = HTTPRemote(
             host: "example.com",
-            path: ""
+            path: "",
         )
 
         let request = HTTPRequest.get("/path")
@@ -151,7 +151,7 @@ struct HTTPRemoteTests {
         let remote = HTTPRemote(
             host: "example.com",
             path: "",
-            queryParameters: ["Query": "true"]
+            queryParameters: ["Query": "true"],
         )
 
         let request = HTTPRequest.get("/path", queryParameters: ["query": "false"])
@@ -165,7 +165,7 @@ struct HTTPRemoteTests {
         var remote = HTTPRemote(
             host: "example.com",
             path: "",
-            queryParameters: ["Query": "true"]
+            queryParameters: ["Query": "true"],
         )
 
         remote.queryParametersMergePolicy = .custom { remoteParameters, _ in remoteParameters }
@@ -181,7 +181,7 @@ struct HTTPRemoteTests {
         let remote = HTTPRemote(
             host: "example.com",
             path: "",
-            headerFields: [headerName: "true"]
+            headerFields: [headerName: "true"],
         )
 
         let request = HTTPRequest.get("/path", headerFields: [headerName: "false"])
@@ -196,7 +196,7 @@ struct HTTPRemoteTests {
         var remote = HTTPRemote(
             host: "example.com",
             path: "",
-            headerFields: [headerName: "true"]
+            headerFields: [headerName: "true"],
         )
 
         remote.headersMergePolicy = .custom { remoteHeaders, _ in remoteHeaders }
@@ -207,5 +207,4 @@ struct HTTPRemoteTests {
         #expect(urlRequest.allHTTPHeaderFields?.count == 1)
         #expect(urlRequest.value(forHTTPHeaderField: headerName.canonicalName) == "true")
     }
-
 }

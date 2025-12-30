@@ -8,14 +8,14 @@ public protocol HTTPEndpoint {
     associatedtype Input
     /// The output type for the endpoint.
     associatedtype Output
-    
+
     /// Creates a request given the input.
     ///
     /// Normally you don’t call this method directly as it is called by ``HTTPService`` as part of an HTTP call.
     /// - Parameter input: The `input` used to construct the request.
     /// - Returns: The encoded request. Throws if the input can not be encoded.
     func request(for input: Input) throws -> HTTPRequest
-    
+
     /// Parses the HTTP response to extract the output.
     ///
     /// Normally you don’t call this method directly. as it is called by ``HTTPService`` as part of an HTTP call.

@@ -6,19 +6,14 @@ import FoundationNetworking
 
 /// A description of a remote service, including information such as host domain, path, and authentication details.
 public struct HTTPRemote {
-    
     public struct HeadersMergePolicy: Sendable {
-        
         var merge: @Sendable (_ remoteHeaders: HTTPFields, _ requestHeaders: HTTPFields) throws -> HTTPFields
-        
     }
-    
+
     public struct QueryParametersMergePolicy: @unchecked Sendable {
-        
         var merge: @Sendable (_ remoteHeaders: [String: String], _ requestHeaders: [String: String]) throws -> [String: String]
-        
     }
-    
+
     public let host: String
     public let path: String
     public let port: Int?
@@ -26,17 +21,17 @@ public struct HTTPRemote {
     public let password: String?
     public let queryParameters: [String: String]
     public let headerFields: HTTPFields
-    
+
     /// Determines how headers from an `HTTPRequest` must be processed when creating a `URLRequest`.
     ///
     /// Defaults to `.disallowOverrides`.
     public var headersMergePolicy = HeadersMergePolicy.disallowOverrides
-    
+
     /// Determines how query paramteres from an `HTTPRequest` must be processed when creating a `URLRequest`.
     ///
     /// Defaults to `.disallowOverridesCaseInsensitive`.
     public var queryParametersMergePolicy = QueryParametersMergePolicy.disallowOverridesCaseInsensitive
-    
+
     /// Creates a new HTTP remote
     /// - Parameters:
     ///   - host: The host domain for the service.
@@ -53,19 +48,18 @@ public struct HTTPRemote {
         user: String? = nil,
         password: String? = nil,
         queryParameters: [String: String] = [:],
-        headerFields: HTTPFields = HTTPFields()
+        headerFields: HTTPFields = HTTPFields(),
     ) {
-        
         guard path.isEmpty || path.starts(with: "/") else {
             preconditionFailure("`path` must start with `/` if it’s not empty.")
         }
-        
+
         for bodyHeaderFieldName in [HTTPField.Name.contentType, .contentLength] {
             guard !headerFields.contains(bodyHeaderFieldName) else {
                 preconditionFailure("\(bodyHeaderFieldName) header must not be set on a remote. Provide this value for each request.")
             }
         }
-        
+
         self.host = host
         self.path = path
         self.port = port
@@ -74,11 +68,9 @@ public struct HTTPRemote {
         self.queryParameters = queryParameters
         self.headerFields = headerFields
     }
-    
 }
 
 extension HTTPRemote {
-    
     /// Creates a URL for the specified request and scheme.
     /// - Throws: An error if `request` overries query parameters already defined in the receiver.
     public func url(for request: HTTPRequest, scheme: URLScheme) throws -> URL {
@@ -97,21 +89,19 @@ extension HTTPRemote {
             }
         }.url!
     }
-
 }
 
 extension HTTPRemote: URLRequestProviding {
-    
     public func urlRequest(from request: HTTPRequest) throws -> URLRequest {
         let headers = try headersMergePolicy.merge(headerFields, request.headerFields)
-        
+
         let url = try url(for: request, scheme: .https)
-        
+
         return mutating(URLRequest(url: url)) { urlRequest in
             for field in headers {
                 urlRequest.addValue(field.value, forHTTPHeaderField: field.name.canonicalName)
             }
-            
+
             urlRequest.httpMethod = request.method.rawValue
             if let body = request.body {
                 urlRequest.httpBody = body.content
@@ -120,15 +110,13 @@ extension HTTPRemote: URLRequestProviding {
             }
         }
     }
-    
 }
 
 extension HTTPRemote.HeadersMergePolicy {
-    
     private enum Errors: Error {
         case requestOverridesHeaders(Set<HTTPField.Name>)
     }
-    
+
     /// A header policy that throws an error if a request tries to set headers already present in the remote.
     public static let disallowOverrides: HTTPRemote.HeadersMergePolicy = .init { remoteHeaders, requestHeaders -> HTTPFields in
         let overriddenFieldNames = Set(remoteHeaders.lazy.map(\.name))
@@ -136,27 +124,25 @@ extension HTTPRemote.HeadersMergePolicy {
         guard overriddenFieldNames.isEmpty else {
             throw Errors.requestOverridesHeaders(overriddenFieldNames)
         }
-        
+
         return mutating(remoteHeaders) { remoteHeaders in
             for field in requestHeaders {
                 remoteHeaders[field.name] = field.value
             }
         }
     }
-    
+
     /// A custom header policy that accepts a closure to determine the behaviour.
     public static func custom(merge: @escaping @Sendable (_ remoteHeaders: HTTPFields, _ requestHeaders: HTTPFields) throws -> HTTPFields) -> HTTPRemote.HeadersMergePolicy {
         HTTPRemote.HeadersMergePolicy(merge: merge)
     }
-    
 }
 
 extension HTTPRemote.QueryParametersMergePolicy {
-    
     private enum Errors: Error {
         case requestOverridesQueryParameters(Set<String>)
     }
-    
+
     /// A policy that throws an error if a request tries to set a quert parameter already present in the remote, even if they have different cases.
     public static let disallowOverridesCaseInsensitive = HTTPRemote.QueryParametersMergePolicy { remoteParameters, requestParameters in
         let overriddenParameters = Set(remoteParameters.keys.map { $0.lowercased() })
@@ -164,13 +150,12 @@ extension HTTPRemote.QueryParametersMergePolicy {
         guard overriddenParameters.isEmpty else {
             throw Errors.requestOverridesQueryParameters(overriddenParameters)
         }
-        
-        return Dictionary(uniqueKeysWithValues: [remoteParameters, requestParameters].lazy.flatMap { $0 }.map { $0 })
+
+        return Dictionary(uniqueKeysWithValues: [remoteParameters, requestParameters].lazy.flatMap(\.self).map(\.self))
     }
-    
+
     /// A custom header policy that accepts a closure to determine the behaviour.
     public static func custom(merge: @escaping @Sendable (_ remoteHeaders: [String: String], _ requestHeaders: [String: String]) throws -> [String: String]) -> HTTPRemote.QueryParametersMergePolicy {
         HTTPRemote.QueryParametersMergePolicy(merge: merge)
     }
-    
 }

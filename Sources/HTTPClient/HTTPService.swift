@@ -40,10 +40,9 @@ import Foundation
 /// ```
 @dynamicMemberLookup
 public final class HTTPService<Endpoints> {
-
     private let client: HTTPClient
     private let endpoints: Endpoints
-    
+
     /// Creates a new service that uses the passed in `client` for networking. The service can be used to access any endpoint defined as a property on `Endpoints`.
     /// - Parameters:
     ///   - client: The HTTP client to use for networking.
@@ -52,14 +51,14 @@ public final class HTTPService<Endpoints> {
         self.client = client
         self.endpoints = endpoints
     }
-    
+
     /// Returns a callable endpoint.
     ///
     /// Normally, you use this as part of a member lookup to immediately call the endpoint. See ``HTTPService``.
     public subscript<Endpoint>(dynamicMember endpointPath: KeyPath<Endpoints, Endpoint>) -> HTTPCallableEndpoint<Endpoint> where Endpoint: HTTPEndpoint {
         HTTPCallableEndpoint(client: client, endpoint: endpoints[keyPath: endpointPath])
     }
-    
+
     /// Calls the specified endpoint asynchronously.
     ///
     /// Normally, you use this as part of a member lookup to immediately call the endpoint. See ``HTTPService``.
@@ -74,20 +73,18 @@ public final class HTTPService<Endpoints> {
 ///
 /// Normally, you use this as part of a member lookup on `HTTPService` to immediately call the endpoint. See ``HTTPService``.
 public final class HTTPCallableEndpoint<Endpoint: HTTPEndpoint> {
-    
     private let client: HTTPClient
     private let endpoint: Endpoint
-    
+
     fileprivate init(client: HTTPClient, endpoint: Endpoint) {
         self.client = client
         self.endpoint = endpoint
     }
-    
+
     /// Calls the endpoint asynchronously and returns the result.
     /// - Parameter input: Input for the `Endpoint`.
     /// - Returns: Result of calling the `Endpoint`.
     public func callAsFunction(with input: Endpoint.Input) async -> Result<Endpoint.Output, HTTPEndpointCallError> {
         await client.fetch(endpoint, with: input)
     }
-    
 }

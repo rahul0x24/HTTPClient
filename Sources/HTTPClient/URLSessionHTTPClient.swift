@@ -5,10 +5,9 @@ import FoundationNetworking
 
 /// A concrete implementation of `HTTPClient` that uses `URLSession` to make the HTTP calls.
 public final class URLSessionHTTPClient: HTTPClient {
-    
     private let remote: URLRequestProviding
     private let session: URLSessionProtocol
-    
+
     /// Creates a new HTTP client for the specified `remote`. The client will use `session` to perform network calls.
     ///
     /// When performing a request.
@@ -22,7 +21,7 @@ public final class URLSessionHTTPClient: HTTPClient {
         self.remote = remote
         self.session = session
     }
-    
+
     public func perform(_ request: HTTPRequest) async -> Result<HTTPResponse, HTTPRequestPerformingError> {
         await Result { try remote.urlRequest(from: request) }
             .mapError(HTTPRequestPerformingError.rejectedRequest)
@@ -32,14 +31,12 @@ public final class URLSessionHTTPClient: HTTPClient {
             }
             .map { HTTPResponse(httpUrlResponse: $1 as! HTTPURLResponse, bodyContent: $0) }
     }
-    
 }
 
-private extension HTTPRequestPerformingError {
-    
+extension HTTPRequestPerformingError {
     /// Create an `HTTPRequestError` from the networking error provided.
     ///
-    static func fromUntypedNetworkError(_ error: Error) -> HTTPRequestPerformingError {
+    fileprivate static func fromUntypedNetworkError(_ error: Error) -> HTTPRequestPerformingError {
         // TODO: P4 – Look for alternative solutions if available (last reviews as of OS 26)
         // We assume is `URLSession.data` always returns a `URLError`; but the API is untyped, so it’s not possible to be entirely sure.
         if let error = error as? URLError {
@@ -49,5 +46,4 @@ private extension HTTPRequestPerformingError {
             return .networkFailure(underlyingError: URLError(.unknown))
         }
     }
-    
 }

@@ -12,25 +12,23 @@ import HTTPTypesFoundation
 /// `HTTPResponse` does not expose many properties of the response otherwise available on `URLResponse` and `HTTPURLResponse` such as the `url` to better enforce separation of concerns.
 public struct HTTPResponse: Equatable, Sendable {
     public typealias Status = HTTPTypes.HTTPResponse.Status
-    
+
     public let status: Status
     public let body: Body
     public let headerFields: HTTPFields
-    
+
     public init(
         status: Status,
         body: Body,
-        headerFields: HTTPFields = HTTPFields()
+        headerFields: HTTPFields = HTTPFields(),
     ) {
         self.status = status
         self.body = body
         self.headerFields = headerFields
     }
-    
 }
 
 extension HTTPResponse {
-    
     public init(httpUrlResponse: HTTPURLResponse, bodyContent: Data) {
         guard let response = httpUrlResponse.httpResponse else {
             fatalError("Malformed `httpUrlResponse`.")
@@ -42,14 +40,13 @@ extension HTTPResponse {
             status: response.status,
             body: HTTPResponse.Body(
                 content: bodyContent,
-                type: contentType
+                type: contentType,
             ),
-            headerFields: headerFields
+            headerFields: headerFields,
         )
     }
-    
+
     public static func ok(with body: HTTPResponse.Body) -> HTTPResponse {
         HTTPResponse(status: .ok, body: body)
     }
-    
 }
