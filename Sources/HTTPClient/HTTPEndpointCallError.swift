@@ -1,7 +1,7 @@
 import Foundation
 
 /// An error when calling an HTTP endpoint.
-public enum HTTPEndpointCallError: Error {
+public enum HTTPEndpointCallError: Error, Sendable {
     /// The endpoint could not create an `HTTPRequest` from the `Input`.
     ///
     /// Normally, this error signifies a programmer error.

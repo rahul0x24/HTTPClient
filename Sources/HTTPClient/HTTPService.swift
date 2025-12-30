@@ -39,7 +39,7 @@ import Foundation
 /// let currencies = await service.supportedCurrencies
 /// ```
 @dynamicMemberLookup
-public final class HTTPService<Endpoints> {
+public final class HTTPService<Endpoints>: Sendable where Endpoints: Sendable {
     private let client: HTTPClient
     private let endpoints: Endpoints
 
@@ -72,7 +72,7 @@ public final class HTTPService<Endpoints> {
 /// An endpoint bound to an HTTP service.
 ///
 /// Normally, you use this as part of a member lookup on `HTTPService` to immediately call the endpoint. See ``HTTPService``.
-public final class HTTPCallableEndpoint<Endpoint: HTTPEndpoint> {
+public final class HTTPCallableEndpoint<Endpoint: HTTPEndpoint>: Sendable {
     private let client: HTTPClient
     private let endpoint: Endpoint
 

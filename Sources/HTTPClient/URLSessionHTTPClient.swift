@@ -4,7 +4,7 @@ import FoundationNetworking
 #endif
 
 /// A concrete implementation of `HTTPClient` that uses `URLSession` to make the HTTP calls.
-public final class URLSessionHTTPClient: HTTPClient {
+public final class URLSessionHTTPClient: HTTPClient, Sendable {
     private let remote: URLRequestProviding
     private let session: URLSessionProtocol
 

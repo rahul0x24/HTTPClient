@@ -5,7 +5,7 @@ import FoundationNetworking
 #endif
 
 /// A description of a remote service, including information such as host domain, path, and authentication details.
-public struct HTTPRemote {
+public struct HTTPRemote: Sendable {
     public struct HeadersMergePolicy: Sendable {
         var merge: @Sendable (_ remoteHeaders: HTTPFields, _ requestHeaders: HTTPFields) throws -> HTTPFields
     }

@@ -6,7 +6,7 @@ import Foundation
 /// The `HTTPClient` may perform app-specific behaviours. For example, it may perform additional security checks, or collect metrics around network failures.
 ///
 /// Normally, how the client performs a request is opaque to the caller. However, specific implementations in an app may define additional behaviour.
-public protocol HTTPClient {
+public protocol HTTPClient: Sendable {
     /// Performs the `request` and returns the result.
     ///
     /// There are two different reasons the operation may fail:

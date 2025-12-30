@@ -6,7 +6,7 @@ import FoundationNetworking
 /// A facade for using `URLSession`.
 ///
 /// This protocol is defined as a customisation point. In most situations, you may be able to use `URLSession` instead of defining a custom type.
-public protocol URLSessionProtocol {
+public protocol URLSessionProtocol: Sendable {
     /// Downloads the contents of a URL based on the specified URL request and delivers the data asynchronously.
     /// - Parameters:
     ///   - request: A URL request object that provides request-specific information such as the URL, cache policy, request type, and body data or body stream.

@@ -3,11 +3,11 @@ import Foundation
 /// Represents an HTTP endpoint.
 ///
 /// Conformances of `HTTPEndpoint` are responsible for mapping model objects to and from network data types.
-public protocol HTTPEndpoint {
+public protocol HTTPEndpoint: Sendable {
     /// The input type for the endpoint.
-    associatedtype Input
+    associatedtype Input: Sendable
     /// The output type for the endpoint.
-    associatedtype Output
+    associatedtype Output: Sendable
 
     /// Creates a request given the input.
     ///

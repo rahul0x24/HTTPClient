@@ -4,7 +4,7 @@ import Foundation
 ///
 /// This is a low-level error type, normally used when implementing an ``HTTPClient``.
 /// For a more descriptive error type when calling an HTTP endpoint see ``HTTPEndpointCallError``.
-public enum HTTPRequestPerformingError: Error {
+public enum HTTPRequestPerformingError: Error, Sendable {
     /// The HTTP request was rejected by the network stack before actually making a call.
     ///
     /// Normally, this error signifies a programmer error.

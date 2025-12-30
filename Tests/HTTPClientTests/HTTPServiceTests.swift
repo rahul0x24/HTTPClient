@@ -89,7 +89,7 @@ struct HTTPServiceTests {
     }
 }
 
-private class MockClient: HTTPClient {
+private final class MockClient: HTTPClient, @unchecked Sendable {
     var shouldRejectRequest = false
     var urlError: URLError?
     var response = HTTPResponse.ok(with: .empty)
