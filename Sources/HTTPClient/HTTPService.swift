@@ -23,7 +23,7 @@ import Foundation
 /// }
 /// ```
 ///
-/// You can then create an HTTPService by prodiving with a client and an instance of the endpoints type:
+/// You can then create an HTTPService by providing a client and an instance of the endpoints type:
 ///
 /// ```swift
 /// let service = HTTPService(client: someClient, endpoints: CurrencyExchangeEndpoints())
@@ -31,12 +31,12 @@ import Foundation
 ///
 /// You can then use the service to call the endpoint:
 /// ```swift
-/// let exchangeRate = await service.convert(with: "usdgbp")
+/// let exchangeRate = try await service.convert(with: "usdgbp")
 /// ```
 ///
 /// If the endpoint does not need inputs (`Endpoint.Input == Void`), you can call the endpoint as a property
 /// ```swift
-/// let currencies = await service.supportedCurrencies
+/// let currencies = try await service.supportedCurrencies
 /// ```
 @dynamicMemberLookup
 public final class HTTPService<Endpoints>: Sendable where Endpoints: Sendable {
@@ -62,9 +62,9 @@ public final class HTTPService<Endpoints>: Sendable where Endpoints: Sendable {
     /// Calls the specified endpoint asynchronously.
     ///
     /// Normally, you use this as part of a member lookup to immediately call the endpoint. See ``HTTPService``.
-    public subscript<Endpoint>(dynamicMember endpointPath: KeyPath<Endpoints, Endpoint>) -> Result<Endpoint.Output, HTTPEndpointCallError> where Endpoint: HTTPEndpoint, Endpoint.Input == Void {
-        get async {
-            await self[dynamicMember: endpointPath](with: ())
+    public subscript<Endpoint>(dynamicMember endpointPath: KeyPath<Endpoints, Endpoint>) -> Endpoint.Output where Endpoint: HTTPEndpoint, Endpoint.Input == Void {
+        get async throws {
+            try await self[dynamicMember: endpointPath](with: ())
         }
     }
 }
@@ -81,10 +81,11 @@ public final class HTTPCallableEndpoint<Endpoint: HTTPEndpoint>: Sendable {
         self.endpoint = endpoint
     }
 
-    /// Calls the endpoint asynchronously and returns the result.
+    /// Calls the endpoint asynchronously.
     /// - Parameter input: Input for the `Endpoint`.
-    /// - Returns: Result of calling the `Endpoint`.
-    public func callAsFunction(with input: Endpoint.Input) async -> Result<Endpoint.Output, HTTPEndpointCallError> {
-        await client.fetch(endpoint, with: input)
+    /// - Returns: The parsed output from the endpoint
+    /// - Throws: ``HTTPEndpointCallError`` if the request fails
+    public func callAsFunction(with input: Endpoint.Input) async throws -> Endpoint.Output {
+        try await client.fetch(endpoint, with: input)
     }
 }

@@ -17,7 +17,7 @@ struct URLSessionHTTPClientTests {
         let client = URLSessionHTTPClient(remote: remote, session: session)
 
         let request = HTTPRequest.get("")
-        let response = try await client.perform(request).get()
+        let response = try await client.perform(request)
         #expect(response.body.content == data)
     }
 }
@@ -26,7 +26,7 @@ struct URLSessionHTTPClientTests {
 
 private struct MockURLSession: URLSessionProtocol {
     var data: Data
-    var response: HTTPURLResponse
+    var response: URLResponse
 
     func data(for request: URLRequest, delegate: URLSessionTaskDelegate?) async throws -> (Data, URLResponse) {
         (data, response)

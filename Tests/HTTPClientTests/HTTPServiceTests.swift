@@ -9,11 +9,17 @@ struct HTTPServiceTests {
         let service = HTTPService(client: client) {
             $0.mock.shouldFailEncoding = true
         }
-        let result = await service.mock(with: UUID())
-        guard case .failure(.badInput(let underlyingError)) = result,
-              underlyingError is EncodingError else {
-            Issue.record("Expected .failure(.badInput(EncodingError)), got \(result)")
-            return
+        do {
+            _ = try await service.mock(with: UUID())
+            Issue.record("Expected .badInput error")
+        } catch let error as HTTPEndpointCallError {
+            guard case .badInput(let underlyingError) = error,
+                  underlyingError is EncodingError else {
+                Issue.record("Expected .badInput(EncodingError), got \(error)")
+                return
+            }
+        } catch {
+            Issue.record("Expected HTTPEndpointCallError, got \(error)")
         }
     }
 
@@ -21,23 +27,35 @@ struct HTTPServiceTests {
         let client = MockClient()
         client.shouldRejectRequest = true
         let service = HTTPService(client: client)
-        let result = await service.mock(with: UUID())
-        guard case .failure(.rejectedRequest(let underlyingError)) = result,
-              underlyingError is RejectedRequestError else {
-            Issue.record("Expected .failure(.rejectedRequest(RejectedRequestError)), got \(result)")
-            return
+        do {
+            _ = try await service.mock(with: UUID())
+            Issue.record("Expected .rejectedRequest error")
+        } catch let error as HTTPEndpointCallError {
+            guard case .rejectedRequest(let underlyingError) = error,
+                  underlyingError is RejectedRequestError else {
+                Issue.record("Expected .rejectedRequest(RejectedRequestError), got \(error)")
+                return
+            }
+        } catch {
+            Issue.record("Expected HTTPEndpointCallError, got \(error)")
         }
     }
 
     @Test func `Error on network failure`() async {
         let client = MockClient()
-        let error = URLError(.cannotConnectToHost)
-        client.urlError = error
+        let expectedError = URLError(.cannotConnectToHost)
+        client.urlError = expectedError
         let service = HTTPService(client: client)
-        let result = await service.mock(with: UUID())
-        guard case .failure(.networkFailure(underlyingError: error)) = result else {
-            Issue.record("Expected .failure(.networkFailure(URLError)), got \(result)")
-            return
+        do {
+            _ = try await service.mock(with: UUID())
+            Issue.record("Expected .networkFailure error")
+        } catch let error as HTTPEndpointCallError {
+            guard case .networkFailure(underlyingError: expectedError) = error else {
+                Issue.record("Expected .networkFailure(URLError), got \(error)")
+                return
+            }
+        } catch {
+            Issue.record("Expected HTTPEndpointCallError, got \(error)")
         }
     }
 
@@ -46,10 +64,16 @@ struct HTTPServiceTests {
         let response = HTTPResponse(status: .unauthorized, body: .plain(UUID().uuidString))
         client.response = response
         let service = HTTPService(client: client)
-        let result = await service.mock(with: UUID())
-        guard case .failure(.httpError(response: response)) = result else {
-            Issue.record("Expected .failure(.httpError(HTTPResponse)), got \(result)")
-            return
+        do {
+            _ = try await service.mock(with: UUID())
+            Issue.record("Expected .httpError")
+        } catch let error as HTTPEndpointCallError {
+            guard case .httpError(response: response) = error else {
+                Issue.record("Expected .httpError(HTTPResponse), got \(error)")
+                return
+            }
+        } catch {
+            Issue.record("Expected HTTPEndpointCallError, got \(error)")
         }
     }
 
@@ -58,11 +82,17 @@ struct HTTPServiceTests {
         let service = HTTPService(client: client) {
             $0.mock.shouldFailDecoding = true
         }
-        let result = await service.mock(with: UUID())
-        guard case .failure(.badResponse(let underlyingError)) = result,
-              underlyingError is DecodingError else {
-            Issue.record("Expected .failure(.badResponse(DecodingError)), got \(result)")
-            return
+        do {
+            _ = try await service.mock(with: UUID())
+            Issue.record("Expected .badResponse error")
+        } catch let error as HTTPEndpointCallError {
+            guard case .badResponse(let underlyingError) = error,
+                  underlyingError is DecodingError else {
+                Issue.record("Expected .badResponse(DecodingError), got \(error)")
+                return
+            }
+        } catch {
+            Issue.record("Expected HTTPEndpointCallError, got \(error)")
         }
     }
 
@@ -72,8 +102,7 @@ struct HTTPServiceTests {
         let service = HTTPService(client: client) {
             $0.mock.output = expected
         }
-        let result = await service.mock(with: UUID())
-        let actual = try result.get()
+        let actual = try await service.mock(with: UUID())
         #expect(actual == expected)
     }
 
@@ -83,8 +112,7 @@ struct HTTPServiceTests {
         let service = HTTPService(client: client) {
             $0.noInputMock.output = expected
         }
-        let result = await service.noInputMock
-        let actual = try result.get()
+        let actual = try await service.noInputMock
         #expect(actual == expected)
     }
 }
@@ -94,15 +122,15 @@ private final class MockClient: HTTPClient, @unchecked Sendable {
     var urlError: URLError?
     var response = HTTPResponse.ok(with: .empty)
 
-    func perform(_ request: HTTPRequest) async -> Result<HTTPResponse, HTTPRequestPerformingError> {
+    func perform(_ request: HTTPRequest) async throws -> HTTPResponse {
         if shouldRejectRequest {
-            return .failure(.rejectedRequest(underlyingError: RejectedRequestError()))
+            throw HTTPRequestPerformingError.rejectedRequest(underlyingError: RejectedRequestError())
         }
         if let error = urlError {
-            return .failure(.networkFailure(underlyingError: error))
+            throw HTTPRequestPerformingError.networkFailure(underlyingError: error)
         }
 
-        return .success(response)
+        return response
     }
 }
 

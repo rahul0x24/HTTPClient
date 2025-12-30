@@ -22,27 +22,44 @@ public final class URLSessionHTTPClient: HTTPClient, Sendable {
         self.session = session
     }
 
-    public func perform(_ request: HTTPRequest) async -> Result<HTTPResponse, HTTPRequestPerformingError> {
-        await Result { try remote.urlRequest(from: request) }
-            .mapError(HTTPRequestPerformingError.rejectedRequest)
-            .flatMap { urlRequest in
-                await Result { try await session.data(for: urlRequest, delegate: nil) }
-                    .mapError(HTTPRequestPerformingError.fromUntypedNetworkError)
+    public func perform(_ request: HTTPRequest) async throws -> HTTPResponse {
+        do {
+            let urlRequest: URLRequest
+            do {
+                urlRequest = try remote.urlRequest(from: request)
+            } catch {
+                throw HTTPRequestPerformingError.rejectedRequest(underlyingError: error)
             }
-            .map { HTTPResponse(httpUrlResponse: $1 as! HTTPURLResponse, bodyContent: $0) }
+
+            let (data, response): (Data, URLResponse)
+            do {
+                (data, response) = try await session.data(for: urlRequest, delegate: nil)
+            } catch {
+                throw HTTPRequestPerformingError.fromUntypedNetworkError(error)
+            }
+
+            guard let httpResponse = response as? HTTPURLResponse else {
+                throw HTTPRequestPerformingError.networkFailure(underlyingError: URLError(.badServerResponse))
+            }
+
+            let httpResponseObj = HTTPResponse(httpUrlResponse: httpResponse, bodyContent: data)
+
+            return httpResponseObj
+        } catch let error as HTTPRequestPerformingError {
+            throw error
+        }
     }
 }
 
 extension HTTPRequestPerformingError {
     /// Create an `HTTPRequestError` from the networking error provided.
     ///
+    /// URLSession typically returns `URLError` instances, but the API is untyped.
+    /// For any non-URLError, we wrap it as an unknown URLError to maintain consistency.
     fileprivate static func fromUntypedNetworkError(_ error: Error) -> HTTPRequestPerformingError {
-        // TODO: P4 – Look for alternative solutions if available (last reviews as of OS 26)
-        // We assume is `URLSession.data` always returns a `URLError`; but the API is untyped, so it’s not possible to be entirely sure.
         if let error = error as? URLError {
             return .networkFailure(underlyingError: error)
         } else {
-            print("Unexpected error returned.")
             return .networkFailure(underlyingError: URLError(.unknown))
         }
     }
