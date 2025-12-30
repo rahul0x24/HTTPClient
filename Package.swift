@@ -1,31 +1,19 @@
-// swift-tools-version:6.0
+// swift-tools-version:6.2
 
 import PackageDescription
 
 let package = Package(
-    name: "Support",
+    name: "HTTPClient",
     platforms: [
-        .macOS(.v14),
-        .iOS(.v17),
-        .tvOS(.v17),
-        .watchOS(.v10),
+        .macOS(.v13),
+        .iOS(.v16),
+        .tvOS(.v16),
+        .watchOS(.v9),
     ],
     products: [
         .library(
-            name: "Support",
-            targets: ["Support"]
-        ),
-        .library(
-            name: "LoggingUI",
-            targets: ["LoggingUI"]
-        ),
-        .library(
-            name: "ScenariosSupport",
-            targets: ["ScenariosSupport"]
-        ),
-        .library(
-            name: "TestingSupport",
-            targets: ["TestingSupport"]
+            name: "HTTPClient",
+            targets: ["HTTPClient"]
         ),
     ],
     dependencies: [
@@ -33,51 +21,15 @@ let package = Package(
     ],
     targets: [
         .target(
-            name: "Support",
+            name: "HTTPClient",
             dependencies: [
                 .product(name: "HTTPTypes", package: "swift-http-types"),
                 .product(name: "HTTPTypesFoundation", package: "swift-http-types"),
             ]
         ),
-        .target(
-            name: "LoggingUI",
-            dependencies: ["Support"]
-        ),
-        .target(
-            name: "ScenariosSupport",
-            dependencies: ["Support"]
-        ),
-        .target(
-            name: "TestingSupport",
-            dependencies: ["YAMLBuilder", "Support"]
-        ),
-        .target(
-            name: "YAMLBuilder",
-            dependencies: ["Support"]
-        ),
-        .target(
-            name: "InfraSupport",
-            dependencies: ["YAMLBuilder", "Support"]
-        ),
         .testTarget(
-            name: "SupportTests",
-            dependencies: ["Support", "TestingSupport"]
-        ),
-        .testTarget(
-            name: "ScenariosSupportTests",
-            dependencies: ["ScenariosSupport", "Support", "TestingSupport"]
-        ),
-        .testTarget(
-            name: "TestingSupportTests",
-            dependencies: ["Support", "TestingSupport"]
-        ),
-        .testTarget(
-            name: "YAMLBuilderTests",
-            dependencies: ["YAMLBuilder", "Support", "TestingSupport"]
-        ),
-        .testTarget(
-            name: "InfraSupportTests",
-            dependencies: ["YAMLBuilder", "InfraSupport", "Support", "TestingSupport"]
+            name: "HTTPClientTests",
+            dependencies: ["HTTPClient"]
         ),
     ]
 )

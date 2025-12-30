@@ -2,6 +2,6 @@
 
 set -e
 
-support_dir=$(dirname "$(realpath "$0")")
+package_dir=$(dirname "$(realpath "$0")")
 
-docker run --rm -v $support_dir:/Support -w /Support swift:6.2 swift test
+docker run --rm -v $package_dir:/HTTPClient -w /HTTPClient swift:6.2 swift test

@@ -1,7 +1,0 @@
-#! /bin/bash
-
-# Exclude Package so we don’t remove toolchain info.
-swiftformat --exclude **/Package.swift .
-
-# Don’t Package, but leave headers untouched.
-swiftformat --header ignore .

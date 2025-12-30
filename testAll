@@ -6,5 +6,5 @@ set -e
 xcrun swift test
 ./testUbuntu
 
-xcodebuild test -scheme Support-Package -destination 'name=iPhone 17 Pro'
-xcodebuild test -scheme Support-Package -destination 'name=Apple Watch Ultra 3 (49mm)'
+xcodebuild test -scheme HTTPClient-Package -destination 'name=iPhone 17 Pro'
+xcodebuild test -scheme HTTPClient-Package -destination 'name=Apple Watch Ultra 3 (49mm)'
