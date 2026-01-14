@@ -1,4 +1,7 @@
 import Foundation
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
 
 /// A protocol for intercepting and observing HTTP requests and responses.
 ///
@@ -7,15 +10,15 @@ import Foundation
 /// Example:
 /// ```swift
 /// struct LoggingInterceptor: RequestInterceptor {
-///     func willPerform(_ request: HTTPRequest) {
-///         print("→ \(request.method.rawValue) \(request.path)")
+///     func willPerform(_ request: URLRequest) {
+///         print("→ \(request.httpMethod ?? "GET") \(request.url?.absoluteString ?? "")")
 ///     }
 ///
-///     func didSucceed(_ request: HTTPRequest, response: HTTPResponse) {
-///         print("← \(response.status)")
+///     func didSucceed(_ request: URLRequest, data: Data, response: HTTPURLResponse) {
+///         print("← \(response.statusCode)")
 ///     }
 ///
-///     func didFail(_ request: HTTPRequest, error: HTTPRequestPerformingError) {
+///     func didFail(_ request: URLRequest, error: Error) {
 ///         print("✗ \(error)")
 ///     }
 /// }
@@ -25,24 +28,25 @@ public protocol RequestInterceptor: Sendable {
     ///
     /// Use this method to log outgoing requests, start timing metrics, or initialize tracing spans.
     ///
-    /// - Parameter request: The request about to be performed
-    func willPerform(_ request: HTTPRequest)
+    /// - Parameter request: The URLRequest about to be performed
+    func willPerform(_ request: URLRequest)
 
     /// Called immediately after a request succeeds.
     ///
     /// Use this method to log successful responses, record metrics, or finalize tracing spans.
     ///
     /// - Parameters:
-    ///   - request: The request that was performed
+    ///   - request: The URLRequest that was performed
+    ///   - data: The response body data
     ///   - response: The HTTP response received
-    func didSucceed(_ request: HTTPRequest, response: HTTPResponse)
+    func didSucceed(_ request: URLRequest, data: Data, response: HTTPURLResponse)
 
     /// Called immediately after a request fails.
     ///
     /// Use this method to log errors, record failure metrics, or finalize tracing spans.
     ///
     /// - Parameters:
-    ///   - request: The request that was performed
+    ///   - request: The URLRequest that was performed
     ///   - error: The error that occurred
-    func didFail(_ request: HTTPRequest, error: HTTPRequestPerformingError)
+    func didFail(_ request: URLRequest, error: Error)
 }

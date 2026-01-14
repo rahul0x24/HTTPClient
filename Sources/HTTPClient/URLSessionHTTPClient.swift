@@ -26,9 +26,6 @@ public final class URLSessionHTTPClient: HTTPClient, Sendable {
     }
 
     public func perform(_ request: HTTPRequest) async throws -> HTTPResponse {
-        // Notify interceptor that request is about to be performed
-        interceptor?.willPerform(request)
-
         do {
             let urlRequest: URLRequest
             do {
@@ -36,6 +33,9 @@ public final class URLSessionHTTPClient: HTTPClient, Sendable {
             } catch {
                 throw HTTPRequestPerformingError.rejectedRequest(underlyingError: error)
             }
+
+            // Notify interceptor that request is about to be performed
+            interceptor?.willPerform(urlRequest)
 
             let (data, response): (Data, URLResponse)
             do {
@@ -51,12 +51,14 @@ public final class URLSessionHTTPClient: HTTPClient, Sendable {
             let httpResponseObj = HTTPResponse(httpUrlResponse: httpResponse, bodyContent: data)
 
             // Notify interceptor of success before returning
-            interceptor?.didSucceed(request, response: httpResponseObj)
+            interceptor?.didSucceed(urlRequest, data: data, response: httpResponse)
 
             return httpResponseObj
         } catch let error as HTTPRequestPerformingError {
-            // Notify interceptor of failure
-            interceptor?.didFail(request, error: error)
+            // Notify interceptor of failure (we need the URLRequest here, so we try to create it again)
+            if let urlRequest = try? remote.urlRequest(from: request) {
+                interceptor?.didFail(urlRequest, error: error)
+            }
             throw error
         }
     }

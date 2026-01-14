@@ -85,7 +85,7 @@ struct URLSessionHTTPClientTests {
         #expect(interceptor.willPerformCalled)
         #expect(interceptor.didSucceedCalled)
         #expect(!interceptor.didFailCalled)
-        #expect(interceptor.lastResponse != nil)
+        #expect(interceptor.lastHTTPURLResponse != nil)
     }
 
     @Test func `Client calls interceptor on failure`() async throws {
@@ -144,20 +144,26 @@ private final class MockInterceptor: RequestInterceptor, @unchecked Sendable {
     var willPerformCalled = false
     var didSucceedCalled = false
     var didFailCalled = false
-    var lastResponse: HTTPResponse?
-    var lastError: HTTPRequestPerformingError?
+    var lastURLRequest: URLRequest?
+    var lastData: Data?
+    var lastHTTPURLResponse: HTTPURLResponse?
+    var lastError: Error?
 
-    func willPerform(_ request: HTTPRequest) {
+    func willPerform(_ request: URLRequest) {
         willPerformCalled = true
+        lastURLRequest = request
     }
 
-    func didSucceed(_ request: HTTPRequest, response: HTTPResponse) {
+    func didSucceed(_ request: URLRequest, data: Data, response: HTTPURLResponse) {
         didSucceedCalled = true
-        lastResponse = response
+        lastURLRequest = request
+        lastData = data
+        lastHTTPURLResponse = response
     }
 
-    func didFail(_ request: HTTPRequest, error: HTTPRequestPerformingError) {
+    func didFail(_ request: URLRequest, error: Error) {
         didFailCalled = true
+        lastURLRequest = request
         lastError = error
     }
 }
